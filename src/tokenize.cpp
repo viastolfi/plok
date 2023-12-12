@@ -16,6 +16,12 @@ std::vector<Token> Tokenizer::tokenize() {
            if(buf == "return") {
                tokens.push_back({.type = TokenType::_return});
                buf.clear();
+           } else if(buf == "print") {
+               tokens.push_back({.type = TokenType::_print});
+               buf.clear();
+           } else {
+               std::cerr << "Invalid expression" << std::endl;
+               exit(EXIT_FAILURE);
            }
        } else if (std::isdigit(peek().value())) {
            buf.push_back(consume());
@@ -27,6 +33,18 @@ std::vector<Token> Tokenizer::tokenize() {
        } else if (peek().value() == ';') {
            consume();
            tokens.push_back({.type = TokenType::semicolon});
+       } else if (peek().value() == '\"') {
+           consume();
+           if(std::isspace(peek().value())) {
+               consume();
+               continue;
+           }
+           while(peek().has_value() && peek().value() != '\"') {
+               buf.push_back(consume());
+           }
+           consume();
+           tokens.push_back({.type =  TokenType::_string, .value = buf});
+           buf.clear();
        } else if (std::isspace(peek().value())) {
            consume();
        }

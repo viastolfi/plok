@@ -21,7 +21,7 @@ std::string Generator::generate(){
     stringstream << ".global _main\n.align 2\n_main:\n";
     while(peek().has_value()) {
         if(peek().value().instruction.token.type == TokenType::_return) {
-            stringstream << "    mov x0, " << peek().value().value.value << "\n    mov x16, 1\n    svc 128";
+            //stringstream << "    mov x0, " << peek().value().value.value << "\n    mov x16, 1\n    svc 128";
             consume();
         }
     }

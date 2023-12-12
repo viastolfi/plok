@@ -13,7 +13,8 @@ NodeRoot Parser::parse() {
         if(peek().value().type == TokenType::_return) {
             if(peek(1).has_value() && peek(1).value().type == TokenType::int_lit) {
                 if(peek(2).has_value() && peek(2).value().type == TokenType::semicolon) {
-                    out.statements.push_back({.instruction = {.token = consume()}, .value = {.value = stoi(*consume().value)}});
+                    out.statements.push_back({.instruction = {.token = consume()},
+                        .value = IntValueNode {.value = std::stoi(*consume().value)}});
                     consume();
                 } else {
                     std::cerr << "Missing `;`" << std::endl;
@@ -21,6 +22,20 @@ NodeRoot Parser::parse() {
                 }
             } else {
                 std::cerr << "No return value" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        } else if (peek().value().type == TokenType::_print) {
+            if(peek(1).has_value() && peek(1).value().type == TokenType::_string) {
+                if(peek(2).has_value() && peek(2).value().type == TokenType::semicolon) {
+                    out.statements.push_back({.instruction = {.token = consume()},
+                        .value = StringValueNode{.value = consume().value.value()}});
+                    consume();
+                } else {
+                    std::cerr << "Missing ';'" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            } else {
+                std::cerr << "Missing string" << std::endl;
                 exit(EXIT_FAILURE);
             }
         } else {

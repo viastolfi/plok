@@ -6,13 +6,17 @@ struct InstructionNode {
     Token token;
 };
 
-struct ValueNode {
+struct IntValueNode {
     int value;
+};
+
+struct StringValueNode {
+    std::string value;
 };
 
 struct StatementNode {
     InstructionNode instruction;
-    ValueNode value;
+    std::variant<IntValueNode, StringValueNode> value;
 };
 
 struct NodeRoot {
