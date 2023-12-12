@@ -39,15 +39,13 @@ int main(int argc, char* argv[]) {
         asm_string = generator.generate();
     }
 
-    /*
     {
         std::fstream file("out.s", std::ios::out);
         file << asm_string;
     }
 
     system("as -o out.o out.s");
-    system("ld out.o -o out -l System -syslibroot `xcrun -sdk macosx --show-sdk-path` -e _main -arch arm64");
-    */
+    system("ld out.o -o out");
 
     return EXIT_SUCCESS;
 }

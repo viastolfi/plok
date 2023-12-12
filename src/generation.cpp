@@ -4,28 +4,45 @@ Generator::Generator(NodeRoot root)
     :m_root(root)
 {}
 
-std::optional<StatementNode> Generator::peek(int offset) const {
-    if(m_index + offset >= m_root.statements.size()) {
-        return {};
-    } else {
-        return m_root.statements.at(m_index + offset);
-    }
+void Generator::gen_expression(const ExpressionNode& node) {
+    struct expression_visitor {
+        Generator* generator;
+        void operator()(const IntExpressionNode& node) {
+            generator->m_output << "    mov x0, " << node.value << "\n";
+        }
+        void operator()(const StringExpressionNode& node) {
+            // TODO
+        }
+    };
+
+    expression_visitor visitor {.generator = this};
+    std::visit(visitor, node.var);
 }
 
-StatementNode Generator::consume() {
-    return m_root.statements.at(m_index++);
+
+void Generator::gen_statement(const StatementNode& node) {
+    struct statement_visitor {
+        Generator* generator;
+        void operator()(const ReturnStatementNode return_statement) {
+            generator->gen_expression(return_statement.expression);
+            generator->m_output << "    mov x16, 1\n    svc 128";
+        }
+        void operator()(const PrintStatementNode print_statement) {
+            // TODO
+        }
+    };
+
+    statement_visitor visitor {.generator = this};
+    std::visit(visitor, node.statement);
 }
+
 
 std::string Generator::generate(){
-    std::stringstream stringstream;
-    stringstream << ".global _main\n.align 2\n_main:\n";
-    while(peek().has_value()) {
-        if(peek().value().instruction.token.type == TokenType::_return) {
-            //stringstream << "    mov x0, " << peek().value().value.value << "\n    mov x16, 1\n    svc 128";
-            consume();
-        }
+    m_output << ".global _main\n.align 2\n_main:\n";
+
+    for (const StatementNode node: m_root.statements) {
+        gen_statement(node);
     }
 
-    return stringstream.str();
+    return m_output.str();
 }
-

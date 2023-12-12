@@ -2,21 +2,30 @@
 
 #include "tokenize.hpp"
 
-struct InstructionNode {
-    Token token;
-};
-
-struct IntValueNode {
+struct IntExpressionNode {
     int value;
 };
 
-struct StringValueNode {
+struct StringExpressionNode {
     std::string value;
 };
 
+struct ExpressionNode {
+    std::variant<StringExpressionNode, IntExpressionNode> var;
+};
+
+struct ReturnStatementNode {
+    Token identifier;
+    ExpressionNode expression;
+};
+
+struct PrintStatementNode {
+    Token identifier;
+    ExpressionNode expression;
+};
+
 struct StatementNode {
-    InstructionNode instruction;
-    std::variant<IntValueNode, StringValueNode> value;
+    std::variant<ReturnStatementNode, PrintStatementNode> statement;
 };
 
 struct NodeRoot {
