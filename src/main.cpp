@@ -3,6 +3,7 @@
 #include <sstream>
 #include <fstream>
 
+#include "generation.hpp"
 #include "parse.hpp"
 #include "tokenize.hpp"
 
@@ -26,13 +27,25 @@ int main(int argc, char* argv[]) {
         tokens = tokenizer.tokenize();
     }
 
-    std::string parsed;
+    NodeRoot prog;
     {
         Parser parser(tokens);
-        parsed = parser.parse();
+        prog = parser.parse();
     }
 
-    std::cout << "Hello World !" <<std::endl;
+    std::string asm_string;
+    {
+        Generator generator(prog);
+        asm_string = generator.generate();
+    }
+
+    {
+        std::fstream file("out.s", std::ios::out);
+        file << asm_string;
+    }
+
+    system("as -o out.o out.s");
+    system("ld out.o -o out -l System -syslibroot `xcrun -sdk macosx --show-sdk-path` -e _main -arch arm64");
 
     return EXIT_SUCCESS;
 }
