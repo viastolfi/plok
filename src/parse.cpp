@@ -23,9 +23,10 @@ NodeRoot Parser::parse() {
                 std::cerr << "No return value" << std::endl;
                 exit(EXIT_FAILURE);
             }
+        } else {
+            std::cerr << "No instruction find" << std::endl;
+            exit(EXIT_FAILURE);
         }
-
-
     }
 
     return out;
