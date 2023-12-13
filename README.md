@@ -35,4 +35,6 @@ By the way, I know that there is a lot of mistake done in the code or in the way
 
 # Acknowledgement
 
-This project is mainly inspired by [this youtube series](https://www.youtube.com/playlist?list=PLUDlas_Zy_qC7c5tCgTMYq2idyyT241qs)
+This project is mainly inspired by [this youtube series](https://www.youtube.com/playlist?list=PLUDlas_Zy_qC7c5tCgTMYq2idyyT241qs) \
+[Documentation for syscall instruction number](https://opensource.apple.com/source/xnu/xnu-1504.3.12/bsd/kern/syscalls.master) \
+[Documentation to learn asm in arm64](https://modexp.wordpress.com/2018/10/30/arm64-assembly/)

@@ -47,8 +47,8 @@ public:
     explicit Parser(std::vector<Token> tokens);
     NodeRoot parse();
 private:
-    std::optional<Token> peek(int offset = 0) const;
-    ExpressionNode parse_expression(const Token& token) const;
+    [[nodiscard]] std::optional<Token> peek(int offset = 0) const;
+    [[nodiscard]] ExpressionNode parse_expression(const Token& token) const;
     Token consume();
     const std::vector<Token> m_tokens;
     int m_index = 0;
