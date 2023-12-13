@@ -52,6 +52,9 @@ void Generator::gen_statement(const StatementNode& node) {
             generator->gen_expression(print_statement.expression);
             generator->m_output << "    mov x16, 4\n    svc 128\n";
         }
+        void operator()(const LetStatementNode let_statement) {
+            // TODO
+        }
     };
 
     statement_visitor visitor {.generator = this};

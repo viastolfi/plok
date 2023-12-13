@@ -24,6 +24,7 @@ NodeRoot Parser::parse() {
                 std::cerr << "No return value" << std::endl;
                 exit(EXIT_FAILURE);
             }
+            // print creation
         } else if (peek().value().type == TokenType::_print) {
             if(peek(1).has_value() && peek(1).value().type == TokenType::_string) {
                 if(peek(2).has_value() && peek(2).value().type == TokenType::semicolon) {
@@ -36,6 +37,28 @@ NodeRoot Parser::parse() {
                 }
             } else {
                 std::cerr << "Missing string" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        } else if (peek().value().type == TokenType::let) {
+            if (peek(1).has_value() && peek(1).value().type == TokenType::variable) {
+                if(peek(2).has_value() && peek(2).value().type == TokenType::int_lit) {
+                    if (peek(3).has_value() && peek(3).value().type == TokenType::semicolon) {
+                        LetStatementNode stmt {.identifier = consume()};
+                        std::vector<ExpressionNode> expressions {ExpressionNode{StringExpressionNode{.value = consume().value.value()}},
+                            ExpressionNode{IntExpressionNode{.value = std::stoi(*consume().value)}}};
+                        stmt.expressions = expressions;
+                        out.statements.push_back({.statement = stmt});
+                        consume();
+                    } else {
+                        std::cerr << "Missing ';'" << std::endl;
+                        exit(EXIT_FAILURE);
+                    }
+                } else {
+                    std::cerr << "No int given" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            } else {
+                std::cerr << "Give variable a name" << std::endl;
                 exit(EXIT_FAILURE);
             }
         } else {

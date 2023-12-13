@@ -10,6 +10,8 @@ enum class TokenType {
     semicolon,
     _string,
     _print,
+    variable,
+    let,
 };
 
 struct Token {

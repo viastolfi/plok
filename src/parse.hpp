@@ -24,8 +24,13 @@ struct PrintStatementNode {
     ExpressionNode expression;
 };
 
+struct LetStatementNode {
+    Token identifier;
+    std::vector<ExpressionNode> expressions;
+};
+
 struct StatementNode {
-    std::variant<ReturnStatementNode, PrintStatementNode> statement;
+    std::variant<ReturnStatementNode, PrintStatementNode, LetStatementNode> statement;
 };
 
 struct NodeRoot {
