@@ -4,6 +4,7 @@
 #include "tokenize.hpp"
 
 inline std::set<TokenType> statement_token_type = {TokenType::_print, TokenType::_return, TokenType::let};
+inline std::set<TokenType> value_token_type = {TokenType::int_lit, TokenType::variable, TokenType::_string};
 
 struct IntExpressionNode {
     int value;
