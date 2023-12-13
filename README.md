@@ -35,4 +35,4 @@ By the way, I know that there is a lot of mistake done in the code or in the way
 
 # Acknowledgement
 
-This project is mainly inspired by [this project](https://www.youtube.com/playlist?list=PLUDlas_Zy_qC7c5tCgTMYq2idyyT241qs)
+This project is mainly inspired by [this youtube series](https://www.youtube.com/playlist?list=PLUDlas_Zy_qC7c5tCgTMYq2idyyT241qs)
