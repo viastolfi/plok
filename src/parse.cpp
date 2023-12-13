@@ -30,6 +30,8 @@ NodeRoot Parser::parse() {
 
         // return creation
         if(peek().value().type == TokenType::_return) {
+
+            // need to rework this in case return variable
             if(peek(1).has_value() && peek(1).value().type == TokenType::int_lit) {
                 if(peek(2).has_value() && peek(2).value().type == TokenType::semicolon) {
                     m_root.statements.push_back({.statement = ReturnStatementNode{.identifier = consume(),
@@ -62,35 +64,16 @@ NodeRoot Parser::parse() {
         } else if (peek().value().type == TokenType::let) {
             LetStatementNode stmt {.identifier = consume()};
             std::vector<ExpressionNode> expressions = {};
+
             while (peek().has_value() && peek().value().type != TokenType::semicolon) {
+                if (statement_token_type.contains(peek().value().type)) {
+                    std::cerr << "Missing instruction in statement";
+                    exit(EXIT_FAILURE);
+                }
                 expressions.push_back(parse_expression(consume()));
             }
             consume();
             stmt.expressions = expressions;
-
-            /*
-            if (peek(1).has_value() && peek(1).value().type == TokenType::variable) {
-                if(peek(2).has_value() && peek(2).value().type == TokenType::int_lit) {
-                    if (peek(3).has_value() && peek(3).value().type == TokenType::semicolon) {
-                        LetStatementNode stmt {.identifier = consume()};
-                        std::vector<ExpressionNode> expressions {ExpressionNode{StringExpressionNode{.value = consume().value.value()}},
-                            ExpressionNode{IntExpressionNode{.value = std::stoi(*consume().value)}}};
-                        stmt.expressions = expressions;
-                        m_root.statements.push_back({.statement = stmt});
-                        consume();
-                    } else {
-                        std::cerr << "Missing ';'" << std::endl;
-                        exit(EXIT_FAILURE);
-                    }
-                } else {
-                    std::cerr << "No int given" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-            } else {
-                std::cerr << "Give variable a name" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            */
         } else {
             std::cerr << "No instruction find" << std::endl;
             exit(EXIT_FAILURE);

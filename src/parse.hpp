@@ -1,6 +1,9 @@
 #pragma once
 
+#include <set>
 #include "tokenize.hpp"
+
+inline std::set<TokenType> statement_token_type = {TokenType::_print, TokenType::_return, TokenType::let};
 
 struct IntExpressionNode {
     int value;

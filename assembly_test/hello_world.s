@@ -14,7 +14,7 @@ _hello_world:
 
 _terminate:
     mov x16, 1
-    mov x0, 42
+    mov x0, XZR
     svc 128
 .data
 hello_txt: .ascii "Hello World !\n"
