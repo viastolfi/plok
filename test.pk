@@ -1,3 +1,3 @@
-let x = 4;
- print "HAAAAAA";
-return 4;
+let x = 4
+print "HAAAAAA";
+return x;

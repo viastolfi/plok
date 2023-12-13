@@ -23,7 +23,7 @@ std::vector<Token> Tokenizer::tokenize() {
                tokens.push_back({.type = TokenType::let});
                buf.clear();
            } else {
-               if (tokens.back().type == TokenType::let) {
+               if (tokens.back().type == TokenType::let || tokens.back().type == TokenType::_return) {
                    tokens.push_back({.type = TokenType::variable, .value = buf});
                    buf.clear();
                } else {
