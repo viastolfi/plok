@@ -25,8 +25,10 @@ cmake --build build/
 
 At the moment in plok you can 
 
-  return something,
-  print something
+```
+return something,
+print something
+```
 
 My goal is not really to make a working and usable programming langage but to train and challenge myself for a bit \
 By the way, I know that there is a lot of mistake done in the code or in the way my compiler work but it's okay I will improve it later (no)
