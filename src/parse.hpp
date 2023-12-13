@@ -14,8 +14,12 @@ struct StringExpressionNode {
     std::string value;
 };
 
+struct VariableExpressionNode {
+    std::string value;
+};
+
 struct ExpressionNode {
-    std::variant<StringExpressionNode, IntExpressionNode> var;
+    std::variant<StringExpressionNode, IntExpressionNode, VariableExpressionNode> var;
 };
 
 struct ReturnStatementNode {

@@ -1,7 +1,7 @@
 #include "generation.hpp"
 
 Generator::Generator(NodeRoot root)
-    :m_root(root)
+    :m_root(std::move(root))
 {}
 
 std::string Generator::space2underscore(std::string in) {
@@ -22,10 +22,10 @@ std::string Generator::space2underscore(std::string in) {
 void Generator::gen_expression(const ExpressionNode& node) {
     struct expression_visitor {
         Generator* generator;
-        void operator()(const IntExpressionNode& node) {
+        void operator()(const IntExpressionNode& node) const{
             generator->m_output << "    mov x0, " << node.value << "\n";
         }
-        void operator()(const StringExpressionNode& node) {
+        void operator()(const StringExpressionNode& node) const{
             std::string key = generator->space2underscore(node.value);
             generator->datas.insert({key, node.value});
             generator->m_output << "    mov x0, 1\n"
@@ -33,6 +33,9 @@ void Generator::gen_expression(const ExpressionNode& node) {
                                 "    add x1, x1, " << key << "@PAGEOFF\n"
                                 "    mov x2, " << node.value.length() + 1 << "\n";
 
+        }
+        void operator()(const VariableExpressionNode& node) {
+            // TODO
         }
     };
 
@@ -44,16 +47,19 @@ void Generator::gen_expression(const ExpressionNode& node) {
 void Generator::gen_statement(const StatementNode& node) {
     struct statement_visitor {
         Generator* generator;
-        void operator()(const ReturnStatementNode return_statement) {
+        void operator()(const ReturnStatementNode& return_statement) const{
             generator->gen_expression(return_statement.expression);
             generator->m_output << "    mov x16, 1\n    svc 128\n";
         }
-        void operator()(const PrintStatementNode print_statement) {
+        void operator()(const PrintStatementNode& print_statement) const{
             generator->gen_expression(print_statement.expression);
             generator->m_output << "    mov x16, 4\n    svc 128\n";
         }
-        void operator()(const LetStatementNode let_statement) {
-            // TODO
+        void operator()(const LetStatementNode& let_statement) const{
+            generator->m_output << "    sub sp, sp, 32";
+            for (const ExpressionNode& expression : let_statement.expressions) {
+                generator->gen_expression(expression);
+            }
         }
     };
 

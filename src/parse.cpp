@@ -11,7 +11,7 @@ ExpressionNode Parser::parse_expression(const Token& token) const{
             node.var = IntExpressionNode{.value = std::stoi(*token.value)};
             break;
         case TokenType::variable:
-            node.var = StringExpressionNode{.value = token.value.value()};
+            node.var = VariableExpressionNode{.value = token.value.value()};
             break;
         case TokenType::_string:
             node.var = StringExpressionNode{.value = token.value.value()};
