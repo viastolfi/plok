@@ -27,7 +27,8 @@ At the moment in plok you can
 
 ```
 return something,
-print something
+print something,
+let a variable and use it as a return code for example
 ```
 
 My goal is not really to make a working and usable programming langage but to train and challenge myself for a bit \
