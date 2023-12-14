@@ -23,6 +23,11 @@ void Generator::gen_expression(const ExpressionNode& node) {
     struct expression_visitor {
         Generator* generator;
         void operator()(const IntExpressionNode& node) const{
+            // if we assign value to a variable
+            if (generator->m_actual_scope == TokenType::let) {
+                generator->m_output << "    mov x1, " << node.value << "\n" <<
+                                    "    str x1, [sp, " << generator->m_variables.back().stack_place << "]\n";
+            }
             generator->m_output << "    mov x0, " << node.value << "\n";
         }
         void operator()(const StringExpressionNode& node) const{
@@ -34,8 +39,15 @@ void Generator::gen_expression(const ExpressionNode& node) {
                                 "    mov x2, " << node.value.length() + 1 << "\n";
 
         }
-        void operator()(const VariableExpressionNode& node) {
-            // TODO
+        void operator()(const VariableExpressionNode& node) const{
+            // if we are declaring variable
+            if (generator->m_actual_scope == TokenType::let) {
+                generator->m_variables.push_back({.name = node.value, .stack_place = generator->m_actual_stack_place});
+            }
+            // if we get the variable value
+            else if (generator->m_actual_scope == TokenType::_return){
+                generator->m_output << "    ldr x0, [sp, " << generator->m_variables.back().stack_place << "]\n";
+            }
         }
     };
 
@@ -48,6 +60,7 @@ void Generator::gen_statement(const StatementNode& node) {
     struct statement_visitor {
         Generator* generator;
         void operator()(const ReturnStatementNode& return_statement) const{
+            generator->m_actual_scope = return_statement.identifier.type;
             generator->gen_expression(return_statement.expression);
             generator->m_output << "    mov x16, 1\n    svc 128\n";
         }
@@ -56,7 +69,8 @@ void Generator::gen_statement(const StatementNode& node) {
             generator->m_output << "    mov x16, 4\n    svc 128\n";
         }
         void operator()(const LetStatementNode& let_statement) const{
-            generator->m_output << "    sub sp, sp, 32";
+            generator->m_actual_scope = let_statement.identifier.type;
+            generator->m_output << "    sub sp, sp, 32\n";
             for (const ExpressionNode& expression : let_statement.expressions) {
                 generator->gen_expression(expression);
             }
