@@ -27,8 +27,9 @@ void Generator::gen_expression(const ExpressionNode& node) {
             if (generator->m_actual_scope == TokenType::let) {
                 generator->m_output << "    mov x1, " << node.value << "\n" <<
                                     "    str x1, [sp, " << generator->m_variables.back().stack_place << "]\n";
+            } else {
+                generator->m_output << "    mov x0, " << node.value << "\n";
             }
-            generator->m_output << "    mov x0, " << node.value << "\n";
         }
         void operator()(const StringExpressionNode& node) const{
             std::string key = generator->space2underscore(node.value);
@@ -46,7 +47,11 @@ void Generator::gen_expression(const ExpressionNode& node) {
             }
             // if we get the variable value
             else if (generator->m_actual_scope == TokenType::_return){
-                generator->m_output << "    ldr x0, [sp, " << generator->m_variables.back().stack_place << "]\n";
+                for (variable var : generator->m_variables) {
+                    if (node.value == var.name) {
+                        generator->m_output << "    ldr x0, [sp, " << var.stack_place << "]\n";
+                    }
+                }
             }
         }
     };
@@ -70,10 +75,12 @@ void Generator::gen_statement(const StatementNode& node) {
         }
         void operator()(const LetStatementNode& let_statement) const{
             generator->m_actual_scope = let_statement.identifier.type;
+            // need to not recreate the stack if same context
             generator->m_output << "    sub sp, sp, 32\n";
             for (const ExpressionNode& expression : let_statement.expressions) {
                 generator->gen_expression(expression);
             }
+            generator->m_actual_stack_place++;
         }
     };
 
