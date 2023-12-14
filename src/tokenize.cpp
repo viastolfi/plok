@@ -23,13 +23,8 @@ std::vector<Token> Tokenizer::tokenize() {
                tokens.push_back({.type = TokenType::let});
                buf.clear();
            } else {
-               if (tokens.back().type == TokenType::let || tokens.back().type == TokenType::_return) {
-                   tokens.push_back({.type = TokenType::variable, .value = buf});
-                   buf.clear();
-               } else {
-                   std::cerr << "Invalid expression" << std::endl;
-                   exit(EXIT_FAILURE);
-               }
+                tokens.push_back({.type = TokenType::variable, .value = buf});
+                buf.clear();
            }
        } else if (std::isdigit(peek().value())) {
            buf.push_back(consume());
@@ -54,6 +49,10 @@ std::vector<Token> Tokenizer::tokenize() {
            tokens.push_back({.type =  TokenType::_string, .value = buf});
            buf.clear();
        }  else if (peek().value() == '=') {
+           tokens.push_back({.type = TokenType::equal});
+           consume();
+       } else if (peek().value() == '+') {
+           tokens.push_back({.type = TokenType::plus});
            consume();
        } else if (std::isspace(peek().value())) {
            consume();

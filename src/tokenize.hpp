@@ -12,6 +12,8 @@ enum class TokenType {
     _print,
     variable,
     let,
+    equal,
+    plus,
 };
 
 struct Token {
