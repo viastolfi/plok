@@ -4,6 +4,35 @@ Parser::Parser(std::vector<Token> tokens)
     :m_tokens(std::move(tokens))
 {}
 
+int Parser::check_semicolon() const {
+    int i = 1;
+    while (peek(i).has_value() && !statement_token_type.contains(peek(i).value().type)) {
+        if(peek(i).value().type == TokenType::semicolon) {
+            // return the number of expression after the statement
+            return i - 1;
+        } else {
+            i++;
+            continue;
+        }
+    }
+    std::cerr << "Missing `;`";
+    exit(EXIT_FAILURE);
+}
+
+
+ExpressionNode Parser::parse_binary_expression(const Token& token) const {
+    ExpressionNode node = {};
+    switch(token.type) {
+        case TokenType::plus:
+            node.var = BinaryExpressionNode{.idetifier = token};
+            break;
+        default:
+            std::cerr << "Error in expression" << std::endl;
+            exit(EXIT_FAILURE);
+    }
+    return node;
+}
+
 ExpressionNode Parser::parse_expression(const Token& token) const{
     ExpressionNode node = {};
     switch(token.type) {
@@ -27,6 +56,20 @@ ExpressionNode Parser::parse_expression(const Token& token) const{
 
 NodeRoot Parser::parse() {
     while(peek().has_value()) {
+        // rewriting the parser
+        if(peek().value().type == TokenType::_return) {
+            ReturnStatementNode stmt = {.identifier = consume()};
+            int index = check_semicolon();
+            std::vector<ExpressionNode> exprs {};
+            for(int i=0; i < index; i++) {
+                if(value_token_type.contains(peek().value().type)) {
+                    exprs.push_back(parse_expression(consume()));
+                } else {
+                    exprs.push_back(parse_binary_expression(consume()));
+                }
+            }
+        }
+
 
         // return creation
         if(peek().value().type == TokenType::_return) {
@@ -68,13 +111,18 @@ NodeRoot Parser::parse() {
                 if (statement_token_type.contains(peek().value().type)) {
                     std::cerr << "Missing instruction in statement";
                     exit(EXIT_FAILURE);
+                } else if (peek().value().type == TokenType::equal) {
+                    consume();
+                    continue;
                 }
                 expressions.push_back(parse_expression(consume()));
             }
             consume();
             stmt.expressions = expressions;
             m_root.statements.push_back({.statement = stmt});
-        } else {
+        } else if (peek().value().type == TokenType::variable) {
+            // TODO create calcul node
+        }else {
             std::cerr << "No instruction find" << std::endl;
             exit(EXIT_FAILURE);
         }

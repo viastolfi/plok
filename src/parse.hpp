@@ -22,9 +22,14 @@ struct ExpressionNode {
     std::variant<StringExpressionNode, IntExpressionNode, VariableExpressionNode> var;
 };
 
+struct BinaryExpressionNode {
+    Token idetifier;
+    std::vector<ExpressionNode> expressions;
+};
+
 struct ReturnStatementNode {
     Token identifier;
-    ExpressionNode expression;
+    std::vector<ExpressionNode> expressions;
 };
 
 struct PrintStatementNode {
@@ -34,17 +39,16 @@ struct PrintStatementNode {
 
 struct LetStatementNode {
     Token identifier;
-    std::vector<ExpressionNode> expressions;
+    std::vector<std::variant<ExpressionNode, BinaryExpressionNode>> expressions;
 };
 
 struct StatementNode {
-    std::variant<ReturnStatementNode, PrintStatementNode, LetStatementNode> statement;
+    std::variant<ReturnStatementNode, PrintStatementNode, LetStatementNode, BinaryExpressionNode> statement;
 };
 
 struct NodeRoot {
     std::vector<StatementNode> statements;
 };
-
 
 class Parser {
 public:
@@ -53,8 +57,15 @@ public:
 private:
     [[nodiscard]] std::optional<Token> peek(int offset = 0) const;
     [[nodiscard]] ExpressionNode parse_expression(const Token& token) const;
-    Token consume();
+    [[nodiscard]] ExpressionNode parse_binary_expression(const Token& token) const;
+    int check_semicolon() const;
+
+    Token consume(); 
     const std::vector<Token> m_tokens;
     int m_index = 0;
     NodeRoot m_root;
 };
+
+// rethinking all the parse tree structure
+
+

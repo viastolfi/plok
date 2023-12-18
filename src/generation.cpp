@@ -82,6 +82,9 @@ void Generator::gen_statement(const StatementNode& node) {
             }
             generator->m_actual_stack_place++;
         }
+        void operator() (const BinaryExpressionNode& binary_expression) {
+            // TODO
+        }
     };
 
     statement_visitor visitor {.generator = this};
