@@ -1,53 +1,65 @@
 #pragma once
 
 #include <set>
+#include <variant>
 #include "tokenize.hpp"
 
-inline std::set<TokenType> statement_token_type = {TokenType::_print, TokenType::_return, TokenType::let};
-inline std::set<TokenType> value_token_type = {TokenType::int_lit, TokenType::variable, TokenType::_string};
-
-struct IntExpressionNode {
-    int value;
-};
-
-struct StringExpressionNode {
-    std::string value;
-};
-
-struct VariableExpressionNode {
-    std::string value;
-};
-
-struct ExpressionNode {
-    std::variant<StringExpressionNode, IntExpressionNode, VariableExpressionNode> var;
-};
-
-struct BinaryExpressionNode {
-    Token idetifier;
-    std::vector<ExpressionNode> expressions;
-};
-
-struct ReturnStatementNode {
-    Token identifier;
-    std::vector<ExpressionNode> expressions;
-};
-
-struct PrintStatementNode {
-    Token identifier;
-    ExpressionNode expression;
-};
-
-struct LetStatementNode {
-    Token identifier;
-    std::vector<std::variant<ExpressionNode, BinaryExpressionNode>> expressions;
-};
-
-struct StatementNode {
-    std::variant<ReturnStatementNode, PrintStatementNode, LetStatementNode, BinaryExpressionNode> statement;
-};
-
+struct nodeStatement;
 struct NodeRoot {
-    std::vector<StatementNode> statements;
+    std::vector<nodeStatement> statements;
+};
+
+struct nodeBinaryExpression;
+struct nodeIdentifier;
+
+struct nodeExpression {
+    std::variant<nodeBinaryExpression, nodeIdentifier> var;
+};
+
+struct nodeReturnStatement {
+    Token identifier;
+    nodeExpression expression;
+};
+
+struct nodeLetStatement {
+    Token identifier;
+    nodeExpression expression;
+};
+
+//struct nodeCalculStatement {
+//    Token identifier;
+//    nodeExpression expression;
+//};
+
+struct nodeStatement {
+    std::variant<nodeLetStatement, nodeReturnStatement> var;
+};
+
+struct nodeAdditionBinaryExpression;
+
+struct nodeBinaryExpression {
+    std::variant<nodeAdditionBinaryExpression> var;
+};
+
+struct nodeAdditionBinaryExpression {
+    nodeExpression left_expression;
+    nodeExpression right_expression;
+};
+
+struct nodeIntLitIdentifier {
+    Token identifier;
+};
+
+struct nodeStringIdentifier {
+    Token Identifier;
+};
+
+struct nodeVariableIdentifier {
+    Token Identifier;
+};
+
+struct nodeIdentifier {
+    std::variant<nodeIntLitIdentifier, nodeStringIdentifier, nodeVariableIdentifier> var;
 };
 
 class Parser {
@@ -56,16 +68,12 @@ public:
     NodeRoot parse();
 private:
     [[nodiscard]] std::optional<Token> peek(int offset = 0) const;
-    [[nodiscard]] ExpressionNode parse_expression(const Token& token) const;
-    [[nodiscard]] ExpressionNode parse_binary_expression(const Token& token) const;
-    int check_semicolon() const;
+    std::optional<nodeExpression> parse_expression();
+    [[nodiscard]] std::optional<nodeStatement> parse_statement();
+    //[[nodiscard]] ExpressionNode parse_binary_expression(const Token& token) const;
 
     Token consume(); 
     const std::vector<Token> m_tokens;
     int m_index = 0;
     NodeRoot m_root;
 };
-
-// rethinking all the parse tree structure
-
-
