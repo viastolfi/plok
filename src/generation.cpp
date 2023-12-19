@@ -1,6 +1,6 @@
 #include "generation.hpp"
 
-Generator::Generator(NodeRoot root)
+Generator::Generator(nodeRoot root)
     :m_root(std::move(root))
 {}
 
@@ -18,11 +18,11 @@ std::string Generator::space2underscore(std::string in) {
     in.resize(size);
     return in;
 }
-
-void Generator::gen_expression(const ExpressionNode& node) {
+/*
+void Generator::gen_expression(const nodeExpression& node) {
     struct expression_visitor {
         Generator* generator;
-        void operator()(const IntExpressionNode& node) const{
+        void operator()(const nodeTerminationIntLit& node) const{
             // if we assign value to a variable
             if (generator->m_actual_scope == TokenType::let) {
                 generator->m_output << "    mov x1, " << node.value << "\n" <<
@@ -108,3 +108,4 @@ std::string Generator::generate(){
 
     return m_output.str();
 }
+*/

@@ -5,13 +5,13 @@
 
 class Generator {
 public:
-    Generator(NodeRoot root);
+    Generator(nodeRoot root);
     std::string generate();
 private:
-    void gen_statement(const StatementNode& node);
-    void gen_expression(const ExpressionNode& node);
+    void gen_statement(const nodeStatement& node);
+    void gen_expression(const nodeExpression& node);
 
-    const NodeRoot m_root;
+    const nodeRoot m_root;
     std::stringstream m_output;
     std::unordered_map<std::string, std::string> datas;
     std::string space2underscore(std::string text);

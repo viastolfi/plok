@@ -27,16 +27,16 @@ int main(int argc, char* argv[]) {
         tokens = tokenizer.tokenize();
     }
 
-    NodeRoot prog;
+    nodeRoot prog;
     {
         Parser parser(tokens);
-        prog = parser.parse();
+        prog = parser.parse().value();
     }
 
     std::string asm_string;
     {
-        Generator generator(prog);
-        asm_string = generator.generate();
+//        Generator generator(prog);
+//        asm_string = generator.generate();
     }
 
     {
@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
         file << asm_string;
     }
 
-    system("as -o out.o out.s");
-    system("ld out.o -o out");
+    //system("as -o out.o out.s");
+    //system("ld out.o -o out");
 
     return EXIT_SUCCESS;
 }

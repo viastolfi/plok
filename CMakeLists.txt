@@ -10,4 +10,5 @@ add_executable(plok src/main.cpp
         src/parse.cpp
         src/generation.hpp
         src/generation.cpp
+        src/arena.hpp
 )
