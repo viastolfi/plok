@@ -6,7 +6,7 @@ At the moment it's only working on arm64 (and maybe only in mac)
 
 # Installation
 
-At the moment you can only use it by cloning the repo
+You can only use it by cloning the repo
 
 `https://github.com/viastolfi/plok.git`
 
@@ -26,9 +26,8 @@ cmake --build build/
 At the moment in plok you can 
 
 ```
+let a variable <as an int or an addition>,
 return something,
-print something,
-let a variable and use it as a return code for example
 ```
 
 My goal is not really to make a working and usable programming langage but to train and challenge myself for a bit \
