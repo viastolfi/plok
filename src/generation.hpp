@@ -13,6 +13,7 @@ private:
     void gen_termination(const nodeTermination* node);
     void gen_binary_expression(const nodeBinaryExpression* node);
 
+    void push(const std::string& reg, int stack_place);
     void push(const std::string& reg);
     void add_var(Token ident);
 
@@ -21,6 +22,6 @@ private:
 
     const nodeRoot m_root;
     std::stringstream m_output;
-    int stack_place = -1;
+    int m_stack_place = -1;
     std::unordered_map<std::string, int> idents;
 };
