@@ -13,10 +13,6 @@ struct nodeTerminationIntLit {
     Token int_lit;
 };
 
-struct nodeTerminationString {
-    Token _string;
-};
-
 struct nodeTerminationIdentifier {
     Token identifier;
 };
@@ -27,7 +23,7 @@ struct nodeBinaryExpressionAdd {
 };
 
 struct nodeTermination {
-    std::variant<nodeTerminationIdentifier*, nodeTerminationString*, nodeTerminationIntLit*> var;
+    std::variant<nodeTerminationIdentifier*, nodeTerminationIntLit*> var;
 };
 
 struct nodeBinaryExpression {
@@ -42,8 +38,13 @@ struct nodeReturnStatement {
     nodeExpression* expression;
 };
 
+struct nodeLetStatement {
+    Token idetifier;
+    nodeExpression* expression;
+};
+
 struct nodeStatement {
-    std::variant<nodeReturnStatement*> var;
+    std::variant<nodeReturnStatement*, nodeLetStatement*> var;
 };
 
 struct nodeRoot {

@@ -9,8 +9,6 @@ enum class TokenType {
     _return,
     int_lit,
     semicolon,
-    _string,
-    _print,
     variable,
     let,
     equal,

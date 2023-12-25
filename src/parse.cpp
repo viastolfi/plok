@@ -33,13 +33,6 @@ std::optional<nodeTermination *> Parser::parse_termination() {
         term->var = term_int_lit;
         return term;
     }
-    else if (auto _string = try_consume(TokenType::_string)) {
-        auto term_string = m_allocator.alloc<nodeTerminationString>();
-        term_string->_string = _string.value();
-        auto term = m_allocator.alloc<nodeTermination>();
-        term->var = term_string;
-        return term;
-    }
     else if (auto identifier = try_consume(TokenType::variable)) {
         auto term_indentifier = m_allocator.alloc<nodeTerminationIdentifier>();
         term_indentifier->identifier = identifier.value();
@@ -84,7 +77,8 @@ std::optional<nodeExpression*> Parser::parse_expression(){
             add->left_expression = left_term_2;
             add->right_expression = right_term.value();
             expression->var = add;
-        } else {
+        }
+        else {
             assert(false);
         }
 
@@ -103,10 +97,24 @@ std::optional<nodeStatement*> Parser::parse_statement() {
             stmt->var = return_stmt;
             try_consume(TokenType::semicolon, "expected `;`");
             return stmt;
-        } else {
-            std::cerr << "Invalid Expression" << std::endl;
-            exit(EXIT_FAILURE);
         }
+    }
+    else if (peek().value().type == TokenType::let) {
+        auto let_stmt = m_allocator.alloc<nodeLetStatement>();
+        consume();
+        let_stmt->idetifier = consume();
+        try_consume(TokenType::equal);
+        if(auto expression = parse_expression()) {
+            let_stmt->expression = expression.value();
+            auto stmt = m_allocator.alloc<nodeStatement>();
+            stmt->var = let_stmt;
+            try_consume(TokenType::semicolon, "expected `;`");
+            return stmt;
+        }
+    }
+    else {
+        std::cerr << "Invalid Expression" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
