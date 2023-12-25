@@ -3,22 +3,32 @@
 Generator::Generator(nodeRoot root)
     :m_root(std::move(root))
 {}
-void Generator::push(const std::string &reg, Token ident){
-    std::pair<std::string, int> var{ident.value.value(), stack_place};
+
+void Generator::add_var(Token ident) {
+    std::pair<std::string, int> var {ident.value.value(), stack_place};
     idents.emplace(var);
-    m_output << "    str " << reg << ", [sp, " << stack_place << "]\n";
+}
+
+void Generator::push(const std::string &reg) {
     stack_place++;
+    m_output << "    str " << reg << ", [sp, " << stack_place << "]\n";
 }
 
 void Generator::pop(const std::string &reg, Token ident) {
     for(auto& it : idents) {
         if (it.first == ident.value.value()) {
             m_output << "    ldr " << reg << ", [sp, " << it.second << "]\n";
+            stack_place--;
             return;
         }
     }
     std::cerr << "Unknown identifier : " << ident.value.value() << std::endl;
     exit(EXIT_FAILURE);
+}
+
+void Generator::pop(const std::string& reg) {
+    m_output << "    ldr " << reg << ", [sp, " << stack_place << "]\n";
+    stack_place--;
 }
 
 void Generator::gen_termination(const nodeTermination *node) {
@@ -29,6 +39,7 @@ void Generator::gen_termination(const nodeTermination *node) {
         }
         void operator()(const nodeTerminationIntLit* node) {
             generator->m_output << "    mov x0, " << node->int_lit.value.value() << "\n";
+            generator->push("x0");
         }
     };
 
@@ -36,11 +47,28 @@ void Generator::gen_termination(const nodeTermination *node) {
     std::visit(visitor, node->var);
 }
 
+void Generator::gen_binary_expression(const nodeBinaryExpression* node) {
+    struct binary_expression_visitor {
+        Generator* generator;
+        void operator()(const nodeBinaryExpressionAdd* node) {
+            generator->gen_expression(node->left_expression);
+            generator->gen_expression(node->right_expression);
+            generator->pop("x0");
+            generator->pop("x1");
+            generator->m_output << "    add x0, x0, x1\n";
+            generator->push("x0");
+        }
+    };
+
+    binary_expression_visitor visitor {.generator = this};
+    std::visit(visitor, node->var);
+}
+
 void Generator::gen_expression(const nodeExpression* node) {
     struct expression_visitor {
         Generator *generator;
         void operator()(const nodeBinaryExpression* node) const {
-            // TODO
+            generator->gen_binary_expression(node);
         }
         void operator()(const nodeTermination* node) const {
             generator->gen_termination(node);
@@ -60,7 +88,7 @@ void Generator::gen_statement(const nodeStatement* stmt) {
         }
         void operator()(const nodeLetStatement* let_statement) const{
             generator->gen_expression(let_statement->expression);
-            generator->push("x0", let_statement->idetifier);
+            generator->add_var(let_statement->idetifier);
         }
     };
 
