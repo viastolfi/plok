@@ -2,14 +2,13 @@
 .align 2
 
 _main:
-    sub sp, sp, 32
-    mov x0, 16 
+    mov x0, 16
     mov x1, 12
-    str x0, [sp]
-    str x1, [sp]
-    
-    ldr x0, [sp]
-    ldr x0, [sp, (-1 * 8)]
+    stp x0, xzr, [sp, -16]!
+    stp x1, xzr, [sp, -16]!
+
+    ldr x0, [sp], 16
+    ldr x1, [sp], 16
 
     mov x16, 1
     svc 128
