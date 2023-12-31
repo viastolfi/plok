@@ -22,12 +22,17 @@ struct nodeBinaryExpressionAdd {
     nodeExpression* right_expression;
 };
 
+struct nodeBinaryExpressionSub {
+    nodeExpression* left_expression;
+    nodeExpression* right_expression;
+};
+
 struct nodeTermination {
     std::variant<nodeTerminationIdentifier*, nodeTerminationIntLit*> var;
 };
 
 struct nodeBinaryExpression {
-    std::variant<nodeBinaryExpressionAdd*> var;
+    std::variant<nodeBinaryExpressionAdd*, nodeBinaryExpressionSub*> var;
 };
 
 struct nodeExpression {

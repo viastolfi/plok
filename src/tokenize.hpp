@@ -13,6 +13,7 @@ enum class TokenType {
     let,
     equal,
     plus,
+    sub,
 };
 
 struct Token {

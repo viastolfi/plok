@@ -78,6 +78,13 @@ std::optional<nodeExpression*> Parser::parse_expression(){
             add->right_expression = right_term.value();
             expression->var = add;
         }
+        else if (_operator.type == TokenType::sub) {
+            auto sub = m_allocator.alloc<nodeBinaryExpressionSub>();
+            left_term_2->var = left_expression->var;
+            sub->left_expression = left_term_2;
+            sub->right_expression = right_term.value();
+            expression->var = sub;
+        }
         else {
             assert(false);
         }

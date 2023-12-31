@@ -30,16 +30,24 @@ std::vector<Token> Tokenizer::tokenize() {
            }
            tokens.push_back({.type = TokenType::int_lit, .value = buf});
            buf.clear();
-       } else if (peek().value() == ';') {
+       }
+       else if (peek().value() == ';') {
            consume();
            tokens.push_back({.type = TokenType::semicolon});
-       } else if (peek().value() == '=') {
+       }
+       else if (peek().value() == '=') {
            tokens.push_back({.type = TokenType::equal});
            consume();
-       } else if (peek().value() == '+') {
+       }
+       else if (peek().value() == '+') {
            tokens.push_back({.type = TokenType::plus});
            consume();
-       } else if (std::isspace(peek().value())) {
+       }
+       else if (peek().value() == '-') {
+           tokens.push_back({.type = TokenType::sub});
+           consume();
+       }
+       else if (std::isspace(peek().value())) {
            consume();
        }
     }
