@@ -4,6 +4,13 @@ Generator::Generator(nodeRoot root)
     :m_root(std::move(root))
 {}
 
+// TODO :
+// Reimplement the stack usage
+// Allocate space depending on how many bytes I need
+// Store the data depending on the number of bytes
+// Keep in mind the place of every variable
+// Get them with their place
+
 void Generator::push_var(const size_t& stack_place) {
     m_output << "    ldr x0, [sp, " << stack_place << "] \n";
     m_output << "    stp x0, xzr, [sp, -16]!\n";
