@@ -2,9 +2,9 @@
 .align 2
 
 _main:
-    mov x0, 3
-    mov x1, 1
+    mov x0, #7
+    mov x1, #3
 
     sub x0, x0, x1
-    mov x16, 1
-    svc 128
+
+    ret

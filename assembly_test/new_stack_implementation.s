@@ -7,10 +7,10 @@ _main:
     sub sp, sp, #16
    
     # We store 15 in the x1 register then in the stack
-    mov x1, 256
+    mov x1, #257
     str x1, [sp, #16]
-    mov x1, 42
-    str x1, [sp, #15]
+    mov x2, #12
+    str x2, [sp, #12]
     ldr x0, [sp, #16]
 
     add sp, sp, #16

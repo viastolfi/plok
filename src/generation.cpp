@@ -10,63 +10,72 @@ Generator::Generator(nodeRoot root)
 // Store the data depending on the number of bytes
 // Keep in mind the place of every variable
 // Get them with their place
+// Place value in the stack depending on the number of bytes they take
 
-void Generator::push_var(const size_t& stack_place) {
-    m_output << "    ldr x0, [sp, " << stack_place << "] \n";
-    m_output << "    stp x0, xzr, [sp, -16]!\n";
+void Generator::push(const size_t& stack_place) {
+    m_output << "    str w0, [sp, #" << 32 - stack_place * 4 << "] \n";
     m_stack_place++;
 }
 
-void Generator::push(const std::string &reg) {
-    m_output << "    stp " << reg << ", xzr, [sp, -16]!\n";
-    m_stack_place++;
+void Generator::pop(const size_t& stack_place) {
+    m_output << "    ldr w0, [sp, #" << 32 - stack_place * 4 << "]\n";
 }
 
-void Generator::pop(const std::string& reg) {
-    m_output << "    ldr " << reg << ", [sp], 16\n";
-    m_stack_place--;
+void Generator::pop(std::string reg,const size_t& stack_place) {
+    m_output << "    ldr " << reg << ", [sp, #" << 32 - stack_place * 4 << "]\n";
 }
 
-void Generator::gen_termination(const nodeTermination *node) {
+void Generator::pop(std::string reg, std::pair<TokenType, std::string> value) {
+    switch (value.first) {
+        case TokenType::int_lit:
+            m_output << "    mov " << reg << ", #" << value.second << std::endl;
+            break;
+        case TokenType::variable:
+            m_output << "    ldr " << reg << ", [sp, #" << 32 - (std::stoi(value.second) * 4) << "]\n";
+            break;
+        default:
+            // TODO
+    }
+}
+
+
+
+std::optional<std::pair<TokenType, std::string>> Generator::gen_termination(const nodeTermination *node) {
     struct termination_visitor {
         Generator* generator;
-        void operator()(const nodeTerminationIdentifier* node) const{
+        std::optional<std::pair<TokenType, std::string>> operator()(const nodeTerminationIdentifier* node) const{
             auto it = std::find_if(generator->m_idents.cbegin(), generator->m_idents.cend(), [&](const Var& var){
                 return var.name == node->identifier.value.value();
             });
             if(it == generator->m_idents.cend()) {
                 std::cerr << "unknown identifier : " << node->identifier.value.value() << std::endl;
             }
-            generator->push_var(static_cast<Var>((*it)).stack_place);
+            return std::make_pair(node->identifier.type, std::to_string(static_cast<Var>((*it)).stack_place));
         }
-        void operator()(const nodeTerminationIntLit* node) {
-            generator->m_output << "    mov x0, " << node->int_lit.value.value() << "\n";
-            generator->push("x0");
+        std::optional<std::pair<TokenType, std::string>> operator()(const nodeTerminationIntLit* node) {
+            return std::make_pair(node->int_lit.type, node->int_lit.value.value());
         }
     };
 
     termination_visitor visitor {.generator = this};
-    std::visit(visitor, node->var);
+    return std::visit(visitor, node->var);
 }
 
 void Generator::gen_binary_expression(const nodeBinaryExpression* node) {
     struct binary_expression_visitor {
         Generator* generator;
         void operator()(const nodeBinaryExpressionAdd* node) const{
-            generator->gen_expression(node->right_expression);
-            generator->gen_expression(node->left_expression);
-            generator->pop("x0");
-            generator->pop("x1");
-            generator->m_output << "    add x0, x0, x1\n";
-            generator->push("x0");
+            std::optional<std::pair<TokenType, std::string>> right_value = generator->gen_expression(node->right_expression);
+            std::optional<std::pair<TokenType, std::string>> left_value = generator->gen_expression(node->left_expression);
+            // generator->m_output << "    add w0, w0, #" << right_value.value() << "\n";
         }
         void operator()(const nodeBinaryExpressionSub* node) const{
-            generator->gen_expression(node->right_expression);
-            generator->gen_expression(node->left_expression);
-            generator->pop("x0");
-            generator->pop("x1");
-            generator->m_output << "    sub x0, x0, x1\n";
-            generator->push("x0");
+            std::optional<std::pair<TokenType, std::string>> right_value = generator->gen_expression(node->right_expression);
+            std::optional<std::pair<TokenType, std::string>> left_value = generator->gen_expression(node->left_expression);
+
+            generator->pop("w0", left_value.value());
+            generator->pop("w1", right_value.value());
+            generator->m_output << "    sub w0, w0, w1\n";
         }
     };
 
@@ -74,31 +83,35 @@ void Generator::gen_binary_expression(const nodeBinaryExpression* node) {
     std::visit(visitor, node->var);
 }
 
-void Generator::gen_expression(const nodeExpression* node) {
+std::optional<std::pair<TokenType, std::string>> Generator::gen_expression(const nodeExpression* node) {
     struct expression_visitor {
         Generator *generator;
-        void operator()(const nodeBinaryExpression* node) const {
+        std::optional<std::pair<TokenType, std::string>> operator()(const nodeBinaryExpression* node) const {
             generator->gen_binary_expression(node);
+            return {};
         }
-        void operator()(const nodeTermination* node) const {
-            generator->gen_termination(node);
+        std::optional<std::pair<TokenType, std::string>> operator()(const nodeTermination* node) const {
+            return generator->gen_termination(node);
         }
     };
 
     expression_visitor visitor {.generator = this};
-    std::visit(visitor, node->var);
+    return std::visit(visitor, node->var);
 }
 
 void Generator::gen_statement(const nodeStatement* stmt) {
     struct statement_visitor {
         Generator* generator;
         void operator()(const nodeReturnStatement* return_statement) const{
-            generator->gen_expression(return_statement->expression);
-            generator->m_output << "    mov x16, 1\n    svc 128\n";
+            std::optional<std::pair<TokenType, std::string>> value = generator->gen_expression(return_statement->expression);
+            generator->pop("w0", value.value());
+            generator->m_output << "    ret\n";
         }
         void operator()(const nodeLetStatement* let_statement) const{
             generator->m_idents.push_back({.name = let_statement->idetifier.value.value(), .stack_place = generator->m_stack_place});
-            generator->gen_expression(let_statement->expression);
+            std::optional<std::pair<TokenType, std::string>> value = generator->gen_expression(let_statement->expression);
+            if(value.has_value()) { generator->pop("w0" , value.value()); }
+            generator->push(generator->m_stack_place);
         }
     };
 
@@ -112,6 +125,8 @@ std::string Generator::generate(){
     for (const nodeStatement* stmt: m_root.statements) {
         gen_statement(stmt);
     }
+
+    m_output << "    add sp, sp, 32\n";
 
     return m_output.str();
 }
